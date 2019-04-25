@@ -1,10 +1,10 @@
-const React = require("react");
-const PropTypes = require("prop-types");
-const queryString = require("query-string");
-const api = require("../utils/api");
-const Link = require("react-router-dom").Link;
-const PlayerPreview = require("./PlayerPreview");
-const Loading = require("./Loading");
+import React from "react";
+import PropTypes from "prop-types";
+import queryString from "query-string";
+import {battle} from "../utils/api";
+import { Link } from "react-router-dom";
+import PlayerPreview from "./PlayerPreview";
+import Loading from "./Loading";
 
 function Profile({ info }) {
   return (
@@ -46,36 +46,35 @@ Player.propTypes = {
 };
 
 class Results extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      winner: null,
-      loser: null,
-      error: null,
-      loading: true
-    };
+  state = {
+    winner: null,
+    loser: null,
+    error: null,
+    loading: true
   }
-  componentDidMount() {
+  
+  async componentDidMount() {
     const { playerOneName, playerTwoName } = queryString.parse(
       this.props.location.search
     );
 
-    api.battle([playerOneName, playerTwoName]).then(results => {
-      if (results === null) {
-        return this.setState(() => ({
-          error:
-            "Looks like there was an error. Check that both users exist on github",
-          loading: false
-        }));
-      }
-      this.setState(() => ({
-        error: null,
-        winner: results[0],
-        loser: results[1],
+    const players = await battle([playerOneName, playerTwoName]);
+
+   
+    if (players === null) {
+      return this.setState(() => ({
+        error:
+          "Looks like there was an error. Check that both users exist on github",
         loading: false
       }));
-    });
+    }
+    this.setState(() => ({
+      error: null,
+      winner: players[0],
+      loser: players[1],
+      loading: false
+    }));
+ 
   }
   render() {
     const { error, winner, loser, loading } = this.state;
@@ -102,4 +101,4 @@ class Results extends React.Component {
   }
 }
 
-module.exports = Results;
+export default Results;

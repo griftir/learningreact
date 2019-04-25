@@ -1,7 +1,7 @@
-const React = require("react");
-const PropTypes = require("prop-types");
-const api = require("../utils/api");
-const Loading = require("./Loading");
+import React from 'react';
+import PropTypes from 'prop-types'
+import {fetchPopularRepos} from '../utils/api'
+import Loading from './Loading'
 
 function SelectLanguage({ selectedLanguage, onSelect }) {
   const languages = ["All", "Javascript", "Ruby", "Java", "CSS", "Python"];
@@ -58,26 +58,23 @@ SelectLanguage.proptypes = {
 };
 
 class Popular extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      selectedLanguage: "All",
-      repos: null
-    };
-    this.updateLanguage = this.updateLanguage.bind(this);
+  state = {
+    selectedLanguage: "All",
+    repos: null
   }
+  
   componentDidMount() {
     //AJAX
     this.updateLanguage(this.state.selectedLanguage);
   }
-  updateLanguage(lang) {
+  updateLanguage = async (lang) => {
     this.setState(() => ({
       selectedLanguage: lang,
       repos: null
     }));
-
-    api.fetchPopularRepos(lang)
-    .then((repos) => this.setState(() => ({ repos })));
+    const repos = await fetchPopularRepos(lang);
+    this.setState(()=> ({repos}))
+    
   }
 
   render() {
@@ -97,4 +94,4 @@ class Popular extends React.Component {
   }
 }
 
-module.exports = Popular;
+export default Popular;
